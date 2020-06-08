@@ -21,9 +21,10 @@ stages:
         docker build -f Dockerfile.build -t dotnetcore-build:$(tag) .
         docker run --name dotnetcoreapp --rm -d dotnetcore-build:$(tag) tail -f /dev/null
         docker exec dotnetcoreapp ls -l -R /app
-        docker cp dotnetcoreapp:app/TestResults $(System.DefaultWorkingDirectory)
+        docker cp dotnetcoreapp:app/Tailspin.SpaceGame.Web.Tests/TestResults $(System.DefaultWorkingDirectory)
         docker cp dotnetcoreapp:app/out $(System.DefaultWorkingDirectory)
         docker stop dotnetcoreapp
+      failOnStderr: true
 
     - task: PublishTestResults@2
       inputs:
