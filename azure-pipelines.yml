@@ -27,10 +27,18 @@ stages:
       failOnStderr: true
 
     - task: PublishTestResults@2
+      displayName: 'Publish test results'
       inputs:
         testRunner: VSTest
-        testResultsFiles: '**/*.trx'
+        testResultsFiles: '$(Build.SourcesDirectory)/**/*.trx'
         failTaskOnFailedTests: true
+        
+    - task: PublishCodeCoverageResults@1
+      displayName: 'Publish code coverage report'
+      inputs:
+        codeCoverageTool: 'cobertura'
+        summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
+
     - task: Docker@2
       displayName: 'Build and push the leaderboard image to container registry'
       inputs:
