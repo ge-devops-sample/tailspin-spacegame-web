@@ -9,4 +9,4 @@ RUN dotnet build -c Release
 RUN dotnet test -c Release --logger "trx;LogFileName=testresults.trx"
 RUN dotnet publish -c Release -o out
 
-CMD ["sleep infinity"]
+CMD ["tail -f /dev/null"]

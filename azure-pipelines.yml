@@ -19,6 +19,7 @@ stages:
     steps:
     - script: |
         docker build -f Dockerfile.build -t dotnetcore-build:$(tag) .
+        docker images
         docker run --name dotnetcoreapp --rm -d dotnetcore-build:$(tag)
         docker cp dotnetcoreapp:app/dotnetcore-tests/TestResults $(System.DefaultWorkingDirectory)
         docker cp dotnetcoreapp:app/dotnetcore-sample/out $(System.DefaultWorkingDirectory)
