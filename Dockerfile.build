@@ -8,3 +8,5 @@ RUN dotnet restore
 RUN dotnet build -c Release
 RUN dotnet test -c Release --logger "trx;LogFileName=testresults.trx"
 RUN dotnet publish -c Release -o out
+
+CMD ["tail", "-f /dev/null"]
