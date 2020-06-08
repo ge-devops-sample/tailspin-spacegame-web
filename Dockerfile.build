@@ -6,5 +6,5 @@ COPY . ./
 # dotnet commands to build, test, and publish
 RUN dotnet restore
 RUN dotnet build -c Release
-RUN dotnet test dotnetcore-tests/dotnetcore-tests.csproj -c Release --logger "trx;LogFileName=testresults.trx"
+RUN dotnet test -c Release --logger "trx;LogFileName=testresults.trx"
 RUN dotnet publish -c Release -o out
