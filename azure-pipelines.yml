@@ -45,7 +45,7 @@ stages:
         (
           succeeded(),
           eq(variables['Build.Reason'], 'PullRequest'),
-          eq(variables['System.PullRequest.TargetBranch'], 'master')
+          eq(variables['System.PullRequest.TargetBranch'], 'refs/heads/master')
         )
           
     - task: DotNetCoreCLI@2
