@@ -1,0 +1,25 @@
+# Build and run tests inside the docker container
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1
+WORKDIR /app
+# copy the contents of agent working directory on host to workdir in container
+COPY . ./
+# dotnet commands to build, test, and publish
+RUN dotnet restore
+RUN dotnet build -c Release
+RUN dotnet test --no-build \
+    --configuration Release \
+    --logger "trx;LogFileName=testresults.trx" \
+    /p:CollectCoverage=true \
+    /p:CoverletOutputFormat=cobertura \
+    /p:CoverletOutput=./TestResults/Coverage/
+
+RUN dotnet new tool-manifest \
+    && dotnet tool install dotnet-reportgenerator-globaltool \
+    && dotnet tool run reportgenerator \
+    -reports:./Tailspin.SpaceGame.Web.Tests/TestResults/Coverage/coverage.cobertura.xml \
+    -targetdir:./CodeCoverage \
+    -reporttypes:HtmlInline_AzurePipelines
+
+RUN dotnet publish -c Release -o out
+
+CMD ["tail -f /dev/null"]
