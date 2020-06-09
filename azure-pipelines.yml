@@ -1,107 +1,53 @@
 trigger:
 - '*'
 
-pool:
-  vmImage: 'ubuntu-16.04'
-  demands:
-    - npm
-
 variables:
   buildConfiguration: 'Release'
-  wwwrootDir: 'Tailspin.SpaceGame.Web/wwwroot'
-  dotnetSdkVersion: '3.1.100'
+  leaderboardRepository: 'leaderboard'
+  webRepository: 'web'
+  tag: '$(Build.BuildId)'
+  imagePullSecret: 'secret'
 
-steps:
-- task: UseDotNet@2
-  displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
-  inputs:
-    version: '$(dotnetSdkVersion)'
+stages:
+- stage: 'Build'
+  displayName: 'Build and publish'
+  jobs:  
+  - job: 'Build'
+    displayName: 'Build and Test'
+    pool:
+      vmImage: 'ubuntu-16.04'
+    steps:
+    - script: |
+        docker build -f Dockerfile.build -t dotnetcore-build:$(tag) .
+        docker run --name dotnetcoreapp --rm -d dotnetcore-build:$(tag) tail -f /dev/null
+        docker exec dotnetcoreapp ls -l -R /app
+        docker cp dotnetcoreapp:app/Tailspin.SpaceGame.Web.Tests/TestResults $(System.DefaultWorkingDirectory)
+        docker cp dotnetcoreapp:app/out $(System.DefaultWorkingDirectory)
+        docker stop dotnetcoreapp
+      failOnStderr: true
 
-- task: UseDotNet@2
-  displayName: 'Use .NET Core SDK 2.1.505 for SonarCloud'
-  inputs:
-    version: '2.1.505'
+    - task: PublishTestResults@2
+      displayName: 'Publish test results'
+      inputs:
+        testRunner: VSTest
+        testResultsFiles: '$(Build.SourcesDirectory)/**/*.trx'
+        failTaskOnFailedTests: true
+        
+    - task: PublishCodeCoverageResults@1
+      displayName: 'Publish code coverage report'
+      inputs:
+        codeCoverageTool: 'cobertura'
+        summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
 
-- task: Npm@1
-  displayName: 'Run npm install'
-  inputs:
-    verbose: false
-
-- script: './node_modules/.bin/node-sass $(wwwrootDir) --output $(wwwrootDir)'
-  displayName: 'Compile Sass assets'
-
-- task: gulp@1
-  displayName: 'Run gulp tasks'
-
-- script: 'echo "$(Build.DefinitionName), $(Build.BuildId), $(Build.BuildNumber)" > buildinfo.txt'
-  displayName: 'Write build info'
-  workingDirectory: $(wwwrootDir)
-
-- task: DotNetCoreCLI@2
-  displayName: 'Restore project dependencies'
-  inputs:
-    command: 'restore'
-    projects: '**/*.csproj'
-
-- task: SonarCloudPrepare@1
-  displayName: 'Prepare SonarCloud analysis'
-  inputs:
-    SonarCloud: 'SonarCloud connection 1'
-    organization: '$(SonarOrganization)'
-    projectKey: '$(SonarProjectKey)'
-    projectName: '$(SonarProjectName)'
-    projectVersion: '$(Build.BuildNumber)'
-    extraProperties: |
-     sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/TestResults/Coverage/coverage.opencover.xml
-     sonar.exclusions=**/wwwroot/lib/**/*
-
-- task: DotNetCoreCLI@2
-  displayName: 'Build the project - $(buildConfiguration)'
-  inputs:
-    command: 'build'
-    arguments: '--no-restore --configuration $(buildConfiguration)'
-    projects: '**/*.csproj'
-
-- task: DotNetCoreCLI@2
-  displayName: 'Install ReportGenerator'
-  inputs:
-    command: custom
-    custom: tool
-    arguments: 'install --global dotnet-reportgenerator-globaltool'
-
-- task: DotNetCoreCLI@2
-  displayName: 'Run unit tests - $(buildConfiguration)'
-  inputs:
-    command: 'test'
-    arguments: '--no-build --configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat="cobertura%2copencover" /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/'
-    publishTestResults: true
-    projects: '**/*.Tests.csproj'
-
-- script: |
-    reportgenerator -reports:$(Build.SourcesDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:HtmlInline_AzurePipelines
-  displayName: 'Create code coverage report'
-
-- task: SonarCloudAnalyze@1
-  displayName: 'Run SonarCloud code analysis'
-
-- task: SonarCloudPublish@1
-  displayName: 'Publish SonarCloud quality gate results'
-
-- task: PublishCodeCoverageResults@1
-  displayName: 'Publish code coverage report'
-  inputs:
-    codeCoverageTool: 'cobertura'
-    summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
-
-- task: DotNetCoreCLI@2
-  displayName: 'Publish the project - $(buildConfiguration)'
-  inputs:
-    command: 'publish'
-    projects: '**/*.csproj'
-    publishWebProjects: false
-    arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
-    zipAfterPublish: true
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: drop'
-  condition: succeeded()
+    - task: Docker@2
+      displayName: 'Build and push the leaderboard image to container registry'
+      inputs:
+        command: buildAndPush
+        buildContext: $(Build.Repository.LocalPath)
+        repository: $(leaderboardRepository)
+        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+        containerRegistry: 'Container Registry Connection'
+        tags: |
+          $(tag)
+    - publish: '$(Build.SourcesDirectory)/manifests'
+      artifact: manifests
