@@ -10,7 +10,7 @@ RUN dotnet test --no-build \
     --configuration Release \
     --logger "trx;LogFileName=testresults.trx" \
     /p:CollectCoverage=true \
-    /p:CoverletOutputFormat=cobertura \
+    /p:CoverletOutputFormat="cobertura%2copencover" \
     /p:CoverletOutput=./TestResults/Coverage/
 
 RUN dotnet new tool-manifest \

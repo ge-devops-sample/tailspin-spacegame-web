@@ -17,6 +17,24 @@ stages:
     pool:
       vmImage: 'ubuntu-16.04'
     steps:
+    - task: UseDotNet@2
+      displayName: 'Use .NET Core SDK 2.1.505 for SonarCloud'
+      inputs:
+        version: '2.1.505'
+
+    - task: SonarCloudPrepare@1
+      displayName: 'Prepare SonarCloud analysis'
+      inputs:
+        SonarCloud: 'SonarCloud connection 1'
+        organization: '$(SonarOrganization)'
+        scannerMode: 'MSBuild'
+        projectKey: '$(SonarProjectKey)'
+        projectName: '$(SonarProjectName)'
+        projectVersion: '$(Build.BuildNumber)'
+        extraProperties: |
+        sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/TestResults/Coverage/coverage.opencover.xml
+        sonar.exclusions=**/wwwroot/lib/**/*
+
     - script: |
         docker build -f Dockerfile.build -t dotnetcore-build:$(tag) .
         docker run --name dotnetcoreapp --rm -d dotnetcore-build:$(tag) tail -f /dev/null
@@ -38,6 +56,12 @@ stages:
       inputs:
         codeCoverageTool: 'cobertura'
         summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
+    
+    - task: SonarCloudAnalyze@1
+      displayName: 'Run SonarCloud code analysis'
+
+    - task: SonarCloudPublish@1
+      displayName: 'Publish SonarCloud quality gate results'
 
     - task: Docker@2
       displayName: 'Build and push the leaderboard image to container registry'
