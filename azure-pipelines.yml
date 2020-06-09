@@ -34,6 +34,13 @@ stages:
         extraProperties: |
           sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/TestResults/Coverage/coverage.opencover.xml
           sonar.exclusions=**/wwwroot/lib/**/*
+          
+    - task: DotNetCoreCLI@2
+      displayName: 'Build the project - $(buildConfiguration)'
+      inputs:
+        command: 'build'
+        arguments: '--no-restore --configuration $(buildConfiguration)'
+        projects: '**/Tailspin.SpaceGame.Web.csproj'
 
     - script: |
         docker build -f Dockerfile.build -t dotnetcore-build:$(tag) .
