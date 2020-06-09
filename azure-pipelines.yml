@@ -18,6 +18,11 @@ stages:
       vmImage: 'ubuntu-16.04'
     steps:
     - task: UseDotNet@2
+      displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
+      inputs:
+        version: '$(dotnetSdkVersion)'
+
+    - task: UseDotNet@2
       displayName: 'Use .NET Core SDK 2.1.505 for SonarCloud'
       inputs:
         version: '2.1.505'
