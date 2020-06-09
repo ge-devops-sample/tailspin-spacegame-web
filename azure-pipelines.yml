@@ -32,8 +32,8 @@ stages:
         projectName: '$(SonarProjectName)'
         projectVersion: '$(Build.BuildNumber)'
         extraProperties: |
-        sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/TestResults/Coverage/coverage.opencover.xml
-        sonar.exclusions=**/wwwroot/lib/**/*
+          sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/TestResults/Coverage/coverage.opencover.xml
+          sonar.exclusions=**/wwwroot/lib/**/*
 
     - script: |
         docker build -f Dockerfile.build -t dotnetcore-build:$(tag) .
