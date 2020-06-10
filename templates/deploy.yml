@@ -9,7 +9,7 @@ parameters:
   dependsOn: false
   
 stages:
-- stage: "Deploy${{ parameters.environment }}"
+- stage: "${{ parameters.environment }}"
   displayName: "Deploy to ${{ parameters.environment }}"
   dependsOn: ${{ parameters.dependsOn }}
   jobs:
