@@ -113,7 +113,7 @@ stages:
     - publish: '$(Build.SourcesDirectory)/manifests'
       artifact: manifests
 
-- template: template/deploy.yml
+- template: templates/deploy.yml
   parameters:
     environment: test
     registryConnection: 'Container Registry Connection'
