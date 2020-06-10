@@ -1,15 +1,17 @@
 parameters:
+  stageName: false
   environment: false
   registryConnection: false
   kubernetesConnection: false
   namespace: false
   webRepository: false
   tag: false
+  dependsOn: false
   
 stages:
 - stage: "Deploy${{ parameters.environment }}"
   displayName: "Deploy to ${{ parameters.environment }}"
-  dependsOn: Build
+  dependsOn: ${{ parameters.dependsOn }}
   jobs:
   - deployment: Deploy
     displayName: Deploy

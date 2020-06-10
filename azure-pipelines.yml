@@ -115,18 +115,22 @@ stages:
 
 - template: templates/deploy.yml
   parameters:
+    stageName: 'DeployTest'
     environment: test
     registryConnection: 'Container Registry Connection'
     kubernetesConnection: 'Kubernetes Cluster Connection Test'
     namespace: 'tailspinspacegame-test'
     webRepository: $(webRepository)
     tag: $(tag)
+    dependsOn: build
 
 - template: templates/deploy.yml
   parameters:
+    stageName: 'DeployProd'
     environment: prod
     registryConnection: 'Container Registry Connection'
     kubernetesConnection: 'Kubernetes Cluster Connection Prod'
     namespace: 'tailspinspacegame'
     webRepository: $(webRepository)
     tag: $(tag)
+    dependsOn: 'DeployTest'
