@@ -121,3 +121,12 @@ stages:
     namespace: 'tailspinspacegame-test'
     webRepository: $(webRepository)
     tag: $(tag)
+
+- template: templates/deploy.yml
+  parameters:
+    environment: prod
+    registryConnection: 'Container Registry Connection'
+    kubernetesConnection: 'Kubernetes Cluster Connection Prod'
+    namespace: 'tailspinspacegame'
+    webRepository: $(webRepository)
+    tag: $(tag)
