@@ -137,14 +137,14 @@ stages:
               action: createSecret
               secretName: $(imagePullSecret)
               dockerRegistryEndpoint: 'Container Registry Connection'
-              kubernetesServiceConnection: 'Kubernetes Cluster Connection test-tailspinspacegame'
+              kubernetesServiceConnection: 'Kubernetes Cluster Connection Test'
               namespace: 'test-tailspinspacegame'
           
           - task: KubernetesManifest@0
             displayName: Deploy to Kubernetes cluster
             inputs:
               action: deploy
-              kubernetesServiceConnection: 'Kubernetes Cluster Connection test-tailspinspacegame'
+              kubernetesServiceConnection: 'Kubernetes Cluster Connection Test'
               namespace: 'test-tailspinspacegame'
               manifests: |
                 $(Pipeline.Workspace)/manifests/deployment.yml
