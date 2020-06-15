@@ -8,44 +8,42 @@ parameters:
   tag: false
   dependsOn: false
   
-stages:
-- stage: "${{ parameters.stageName }}"
+
+jobs:
+- deployment: "Deploy${{ parameters.environment }}"
   displayName: "Deploy to ${{ parameters.environment }}"
   dependsOn: ${{ parameters.dependsOn }}
-  jobs:
-  - deployment: Deploy
-    displayName: Deploy
-    pool:
-      vmImage: 'ubuntu-16.04'
-    environment: "${{ parameters.environment }}.${{ parameters.namespace }}"
-    variables:
-    - group: Release
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - download: current
-            artifact: manifests
-            
-          - task: KubernetesManifest@0
-            displayName: Create imagePullSecret
-            inputs:
-              action: createSecret
-              secretName: $(imagePullSecret)
-              dockerRegistryEndpoint: ${{ parameters.registryConnection }}
-              kubernetesServiceConnection: ${{ parameters.kubernetesConnection }}
-              namespace: ${{ parameters.namespace }}
+  pool:
+    vmImage: 'ubuntu-16.04'
+  environment: "${{ parameters.environment }}.${{ parameters.namespace }}"
+  variables:
+  - group: Release
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - download: current
+          artifact: manifests
           
-          - task: KubernetesManifest@0
-            displayName: Deploy to Kubernetes cluster
-            inputs:
-              action: deploy
-              kubernetesServiceConnection: ${{ parameters.kubernetesConnection }}
-              namespace: ${{ parameters.namespace }}
-              manifests: |
-                $(Pipeline.Workspace)/manifests/deployment.yml
-                $(Pipeline.Workspace)/manifests/service.yml
-              imagePullSecrets: |
-                $(imagePullSecret)
-              containers: |
-                $(RegistryName)/${{ parameters.webRepository }}:${{ parameters.tag }}
+        - task: KubernetesManifest@0
+          displayName: Create imagePullSecret
+          inputs:
+            action: createSecret
+            secretName: $(imagePullSecret)
+            dockerRegistryEndpoint: ${{ parameters.registryConnection }}
+            kubernetesServiceConnection: ${{ parameters.kubernetesConnection }}
+            namespace: ${{ parameters.namespace }}
+        
+        - task: KubernetesManifest@0
+          displayName: Deploy to Kubernetes cluster
+          inputs:
+            action: deploy
+            kubernetesServiceConnection: ${{ parameters.kubernetesConnection }}
+            namespace: ${{ parameters.namespace }}
+            manifests: |
+              $(Pipeline.Workspace)/manifests/deployment.yml
+              $(Pipeline.Workspace)/manifests/service.yml
+            imagePullSecrets: |
+              $(imagePullSecret)
+            containers: |
+              $(RegistryName)/${{ parameters.webRepository }}:${{ parameters.tag }}

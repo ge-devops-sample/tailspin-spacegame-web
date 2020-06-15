@@ -113,24 +113,52 @@ stages:
     - publish: '$(Build.SourcesDirectory)/manifests'
       artifact: manifests
 
-- template: templates/deploy.yml
+- stage: 'Provision'
+  displayName: 'Provision Azure Kubernetes Service'
+  dependsOn: Build
+  jobs:
+  - job: Provision
+    displayName: 'Provision Azure Kubernetes Service'
+    pool:
+      vmImage: 'ubuntu-16.04'
+    variables:
+    - group: Release
+    steps:
+    - script: |
+        # Exit when any command returns a failure status.
+        set -e
+ 
+        # Initialize Terraform.
+        cd $(Build.SourcesDirectory)/terraform_k8s && terraform init -input=false -backend-config="backend.tfvars"
+        # Apply the Terraform plan.
+        terraform apply -input=false -auto-approve
+  
+      name: 'RunTerraform'
+      displayName: 'Run Terraform'
+      env:
+        ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+        ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+        ARM_TENANT_ID: $(ARM_TENANT_ID)
+        ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+
+- template: templates/deploy-stage.yml
   parameters:
     stageName: 'DeployTest'
     environment: test
     registryConnection: 'Container Registry Connection'
     kubernetesConnection: 'Kubernetes Cluster Connection Test'
-    namespace: 'tailspinspacegame-test'
+    namespace: 'micro-services-test'
     webRepository: $(webRepository)
     tag: $(tag)
     dependsOn: build
 
-- template: templates/deploy.yml
+- template: templates/deploy-stage.yml
   parameters:
     stageName: 'DeployProd'
     environment: prod
     registryConnection: 'Container Registry Connection'
     kubernetesConnection: 'Kubernetes Cluster Connection Prod'
-    namespace: 'tailspinspacegame'
+    namespace: ''micro-services'
     webRepository: $(webRepository)
     tag: $(tag)
     dependsOn: 'DeployTest'
