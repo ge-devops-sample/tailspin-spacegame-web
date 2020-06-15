@@ -140,6 +140,9 @@ stages:
         ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
         ARM_TENANT_ID: $(ARM_TENANT_ID)
         ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+        TF_VAR_client_id:  $(ARM_CLIENT_ID)
+        TF_VAR_client_secret: $(ARM_CLIENT_SECRET)
+
 
 - template: templates/deploy-stage.yml
   parameters:
@@ -150,7 +153,7 @@ stages:
     namespace: 'micro-services-test'
     webRepository: $(webRepository)
     tag: $(tag)
-    dependsOn: build
+    dependsOn: Provision
 
 - template: templates/deploy-stage.yml
   parameters:
