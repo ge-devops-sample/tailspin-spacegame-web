@@ -158,7 +158,7 @@ stages:
     environment: prod
     registryConnection: 'Container Registry Connection'
     kubernetesConnection: 'Kubernetes Cluster Connection Prod'
-    namespace: ''micro-services'
+    namespace: 'micro-services'
     webRepository: $(webRepository)
     tag: $(tag)
     dependsOn: 'DeployTest'
