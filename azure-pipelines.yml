@@ -112,7 +112,7 @@ stages:
           $(tag)
     - publish: '$(Build.SourcesDirectory)/manifests'
       artifact: manifests
-      
+
 - template: templates/deploy-stage.yml
   parameters:
     stageName: 'DeployTest'
@@ -122,7 +122,7 @@ stages:
     namespace: 'micro-services-test'
     webRepository: $(webRepository)
     tag: $(tag)
-    dependsOn: Provision
+    dependsOn: Build
 
 - template: templates/deploy-stage.yml
   parameters:
