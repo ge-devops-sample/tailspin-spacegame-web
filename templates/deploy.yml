@@ -47,3 +47,12 @@ jobs:
               $(imagePullSecret)
             containers: |
               $(RegistryName)/${{ parameters.webRepository }}:${{ parameters.tag }}
+
+        - task: Kubernetes@1
+          displayName: kubectl get service ip
+          inputs:
+            connectionType: Kubernetes Service Connection
+            kubernetesServiceEndpoint: ${{ parameters.kubernetesConnection }}
+            namespace: ${{ parameters.namespace }}
+            command: get
+            arguments: service
