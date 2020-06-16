@@ -116,7 +116,7 @@ stages:
 
 - stage: "DeployToTest"
   displayName: "Deploy to test"
-  dependsOn: Build
+ # dependsOn: Build
   jobs:
   - template: templates/deploy.yml
     parameters:
