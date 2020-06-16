@@ -134,7 +134,7 @@ stages:
       vmImage: 'windows-2019'
     variables:
     - name: WebService 
-      value: $[ dependencies.DeployToTest.outputs['getWebService.WebService'] ]
+      value: $[ dependencies.DeployTest.outputs['getWebService.WebService'] ]
     - group: 'Release'
     steps: 
     - task: UseDotNet@2
