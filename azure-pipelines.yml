@@ -130,6 +130,8 @@ stages:
   - job: RunUITests
     dependsOn: DeployTest
     displayName: 'Run UI tests'
+    variables:
+      SITE_URL: $[ dependencies.DeployToTest.outputs['getWebService.WebService'] ]
     pool:
       vmImage: 'windows-2019'
     variables:
@@ -152,8 +154,6 @@ stages:
         arguments: '--no-build --configuration $(buildConfiguration)'
         publishTestResults: true
         projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj'
-      env:
-        SITE_URL:
 
 
 - stage: "DeployToProd"
