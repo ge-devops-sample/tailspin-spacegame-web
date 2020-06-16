@@ -133,7 +133,7 @@ stages:
     pool:
       vmImage: 'windows-2019'
     variables:
-    - name: SITE_URL 
+    - name: WebService 
       value: $[ dependencies.DeployToTest.outputs['getWebService.WebService'] ]
     - group: 'Release'
     steps: 
@@ -154,6 +154,8 @@ stages:
         arguments: '--no-build --configuration $(buildConfiguration)'
         publishTestResults: true
         projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj'
+      env:
+        SITE_URL: $(WebService)
 
 
 - stage: "DeployToProd"
