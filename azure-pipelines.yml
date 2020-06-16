@@ -12,7 +12,6 @@ variables:
 stages:
 - stage: 'Build'
   displayName: 'Build and publish'
-  condition: eq(variables['Build.Reason'], 'PullRequest')
   jobs:  
   - job: 'Build'
     displayName: 'Build and Test'
@@ -116,7 +115,7 @@ stages:
 
 - stage: "DeployToTest"
   displayName: "Deploy to test"
- # dependsOn: Build
+  dependsOn: Build
   jobs:
   - template: templates/deploy.yml
     parameters:
@@ -127,9 +126,9 @@ stages:
       namespace: 'micro-services-test'
       webRepository: $(webRepository)
       tag: $(tag)
-    #  dependsOn: Build
+      dependsOn: Build
   - job: RunUITests
-    #dependsOn: DeployTest
+    dependsOn: DeployTest
     displayName: 'Run UI tests'
     pool:
       vmImage: 'windows-2019'
