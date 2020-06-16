@@ -133,7 +133,8 @@ stages:
     pool:
       vmImage: 'windows-2019'
     variables:
-    - SITE_URL: $[ dependencies.DeployToTest.outputs['getWebService.WebService'] ]
+    - name: SITE_URL 
+      value: $[ dependencies.DeployToTest.outputs['getWebService.WebService'] ]
     - group: 'Release'
     steps: 
     - task: UseDotNet@2
