@@ -147,6 +147,12 @@ stages:
         command: 'build'
         arguments: '--configuration $(buildConfiguration)'
         projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj'
+    - script: |
+        echo "Site URL : $SITE_URL"
+        echo "Web service : $(WebServiceITE_URL)"
+        env
+      env:
+        SITE_URL: $(WebService)
     - task: DotNetCoreCLI@2
       displayName: 'Run unit tests - $(buildConfiguration)'
       inputs:
