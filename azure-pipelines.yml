@@ -129,7 +129,7 @@ stages:
       tag: $(tag)
       dependsOn: Build
   - job: RunUITests
-    dependsOn: DeployTest
+    #dependsOn: DeployTest
     displayName: 'Run UI tests'
     pool:
       vmImage: 'windows-2019'
