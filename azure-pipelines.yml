@@ -12,6 +12,7 @@ variables:
 stages:
 - stage: 'Build'
   displayName: 'Build and publish'
+  condition: eq(variables['Build.Reason'], 'PullRequest')
   jobs:  
   - job: 'Build'
     displayName: 'Build and Test'
