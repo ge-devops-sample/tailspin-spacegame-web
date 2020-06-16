@@ -157,7 +157,7 @@ stages:
   displayName: "Deploy to prod"
   dependsOn: DeployToTest
   jobs:
-  - template: templates/deploy-stage.yml
+  - template: templates/deploy.yml
     parameters:
       stageName: 'DeployProd'
       environment: prod
