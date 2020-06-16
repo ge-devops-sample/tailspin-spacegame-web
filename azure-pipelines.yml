@@ -149,7 +149,7 @@ stages:
         projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj'
     - script: |
         echo "Site URL : $SITE_URL"
-        echo "Web service : $(WebServiceITE_URL)"
+        echo "Web service : $(WebService)"
         env
       env:
         SITE_URL: $(WebService)
