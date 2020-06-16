@@ -6,13 +6,10 @@ parameters:
   namespace: false
   webRepository: false
   tag: false
-  dependsOn: false
-  
 
 jobs:
 - deployment: "Deploy${{ parameters.environment }}"
   displayName: "Deploy to ${{ parameters.environment }}"
-  dependsOn: ${{ parameters.dependsOn }}
   pool:
     vmImage: 'ubuntu-16.04'
   environment: "${{ parameters.environment }}.${{ parameters.namespace }}"
@@ -22,6 +19,10 @@ jobs:
     runOnce:
       deploy:
         steps:
+        - script: |
+          echo $(RegistryName)/${{ parameters.webRepository }}:${{ parameters.tag }}
+        env:
+          RegistryName: $(RegistryName)
         - download: current
           artifact: manifests
           

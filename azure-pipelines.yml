@@ -113,24 +113,57 @@ stages:
     - publish: '$(Build.SourcesDirectory)/manifests'
       artifact: manifests
 
-- template: templates/deploy-stage.yml
-  parameters:
-    stageName: 'DeployTest'
-    environment: test
-    registryConnection: 'Container Registry Connection'
-    kubernetesConnection: 'Kubernetes Cluster Connection Test'
-    namespace: 'micro-services-test'
-    webRepository: $(webRepository)
-    tag: $(tag)
-    dependsOn: Build
+- stage: "DeployToTest"
+  displayName: "Deploy to test"
+  dependsOn: Build
+  jobs:
+  - template: templates/deploy.yml
+    parameters:
+      stageName: 'DeployTest'
+      environment: test
+      registryConnection: 'Container Registry Connection'
+      kubernetesConnection: 'Kubernetes Cluster Connection Test'
+      namespace: 'micro-services-test'
+      webRepository: $(webRepository)
+      tag: $(tag)
+      dependsOn: Build
+  - job: RunUITests
+    dependsOn: Deploy
+    displayName: 'Run UI tests'
+    pool:
+      vmImage: 'windows-2019'
+    variables:
+    - group: 'Release'
+    steps: 
+    - task: UseDotNet@2
+      displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
+      inputs:
+        version: '$(dotnetSdkVersion)'
+    - task: DotNetCoreCLI@2
+      displayName: 'Build the project - $(buildConfiguration)'
+      inputs:
+        command: 'build'
+        arguments: '--configuration $(buildConfiguration)'
+        projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj'
+    - task: DotNetCoreCLI@2
+      displayName: 'Run unit tests - $(buildConfiguration)'
+      inputs:
+        command: 'test'
+        arguments: '--no-build --configuration $(buildConfiguration)'
+        publishTestResults: true
+        projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj' 
 
-- template: templates/deploy-stage.yml
-  parameters:
-    stageName: 'DeployProd'
-    environment: prod
-    registryConnection: 'Container Registry Connection'
-    kubernetesConnection: 'Kubernetes Cluster Connection Prod'
-    namespace: 'micro-services'
-    webRepository: $(webRepository)
-    tag: $(tag)
-    dependsOn: 'DeployTest'
+- stage: "DeployToProd"
+  displayName: "Deploy to prod"
+  dependsOn: DeployToTest
+  jobs:
+  - template: templates/deploy-stage.yml
+    parameters:
+      stageName: 'DeployProd'
+      environment: prod
+      registryConnection: 'Container Registry Connection'
+      kubernetesConnection: 'Kubernetes Cluster Connection Prod'
+      namespace: 'micro-services'
+      webRepository: $(webRepository)
+      tag: $(tag)
+      dependsOn: 'DeployTest'
