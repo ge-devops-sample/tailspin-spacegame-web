@@ -20,7 +20,8 @@ jobs:
       deploy:
         steps:
         - script: |
-          echo $(RegistryName)/${{ parameters.webRepository }}:${{ parameters.tag }}
+            echo $(RegistryName)/${{ parameters.webRepository }}:${{ parameters.tag }}
+        name: "image"
         env:
           RegistryName: $(RegistryName)
         - download: current
