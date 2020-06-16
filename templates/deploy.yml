@@ -1,5 +1,5 @@
 parameters:
-  stageName: false
+  jobName: false
   environment: false
   registryConnection: false
   kubernetesConnection: false
@@ -8,7 +8,7 @@ parameters:
   tag: false
 
 jobs:
-- deployment: "Deploy${{ parameters.environment }}"
+- deployment: "${{ parameters.jobName }}"
   displayName: "Deploy to ${{ parameters.environment }}"
   pool:
     vmImage: 'ubuntu-16.04'
@@ -21,7 +21,7 @@ jobs:
         steps:
         - script: |
             echo $(RegistryName)/${{ parameters.webRepository }}:${{ parameters.tag }}
-            
+
         - download: current
           artifact: manifests
           
