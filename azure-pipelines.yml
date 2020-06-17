@@ -13,6 +13,30 @@ stages:
 - stage: 'Build'
   displayName: 'Build and publish'
   jobs:  
+  - job: 'setVariable'
+    pool:
+      vmImage: 'ubuntu-16.04'
+    steps:
+    - script: |
+        echo "##vso[task.setvariable variable=WebService;isOutput=true]test"
+      name: setWebService
+  - job: 'showVariable'
+    dependsOn: setVariable
+    pool:
+      vmImage: 'ubuntu-16.04'
+    variables:
+    - name: WebService 
+      value: $[ dependencies.setVariable.outputs['setWebService.WebService'] ]
+    - group: 'Release'
+    steps:
+    - script: |
+        echo "Site URL : $SITE_URL"
+        echo "WEBSERVICE : $WEBSERVICE"
+        echo "Web service : $(WebService)"
+        env
+      env:
+        SITE_URL: $(WebService) 
+
   - job: 'Build'
     displayName: 'Build and Test'
     pool:
@@ -136,7 +160,13 @@ stages:
     - name: WebService 
       value: $[ dependencies.DeployTest.outputs['getWebService.WebService'] ]
     - group: 'Release'
-    steps: 
+    steps:
+    - script: |
+        echo "Site URL : $env:SITE_URL"
+        echo "Web service : $(WebService)"
+        env
+      env:
+        SITE_URL: $(WebService) 
     - task: UseDotNet@2
       displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
       inputs:
@@ -147,12 +177,6 @@ stages:
         command: 'build'
         arguments: '--configuration $(buildConfiguration)'
         projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj'
-    - script: |
-        echo "Site URL : $SITE_URL"
-        echo "Web service : $(WebService)"
-        env
-      env:
-        SITE_URL: $(WebService)
     - task: DotNetCoreCLI@2
       displayName: 'Run unit tests - $(buildConfiguration)'
       inputs:
