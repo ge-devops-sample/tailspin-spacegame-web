@@ -23,7 +23,7 @@ stages:
   - job: 'showVariable'
     dependsOn: setVariable
     pool:
-      vmImage: 'ubuntu-16.04'
+      vmImage: 'windows-2019'
     variables:
     - name: WebService 
       value: $[ dependencies.setVariable.outputs['setWebService.WebService'] ]
