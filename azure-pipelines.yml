@@ -14,6 +14,9 @@ stages:
   displayName: 'Build and publish'
   jobs:  
   - template: templates/setVariable.yml
+    parameters:
+      kubernetesConnection: 'Kubernetes Cluster Connection Test'
+      namespace: 'micro-services-test'
   - job: 'showVariable'
     dependsOn: setVariable
     pool:
