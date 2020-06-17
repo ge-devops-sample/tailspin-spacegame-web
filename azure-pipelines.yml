@@ -28,6 +28,7 @@ stages:
       displayName: Use GitVersion
     - script: |
         echo FullSemVer: $(fullSemVer)
+        echo ##vso[build.updatebuildnumber]$(fullSemVer)
     - task: UseDotNet@2
       displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
       inputs:
@@ -119,7 +120,7 @@ stages:
         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
         containerRegistry: 'Container Registry Connection'
         tags: |
-          $(tag)
+          $(build.BuildNumber)
     - publish: '$(Build.SourcesDirectory)/manifests'
       artifact: manifests
 
