@@ -1,0 +1,9 @@
+jobs:  
+  - job: 'setVariable'
+    pool:
+      vmImage: 'ubuntu-16.04'
+    steps:
+    - script: |
+        #Webservice=$(kubectl get service web -n  ${{ parameters.namespace }} -o json | jq .status.loadBalancer.ingress[0].ip | sed 's/\"//g')
+        echo "##vso[task.setvariable variable=WebService;isOutput=true]test"
+      name: setWebService
