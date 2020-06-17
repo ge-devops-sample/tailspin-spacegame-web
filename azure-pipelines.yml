@@ -15,7 +15,6 @@ stages:
   jobs: 
   - job: 'Build'
     displayName: 'Build and Test'
-    dependsOn: showVariable
     pool:
       vmImage: 'ubuntu-16.04'
     steps:
