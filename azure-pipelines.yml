@@ -18,6 +18,14 @@ stages:
     pool:
       vmImage: 'ubuntu-16.04'
     steps:
+    - task: gitversion/setup@0
+      displayName: Install GitVersion
+      inputs:
+        versionSpec: '5.1.3'
+    - task: gitversion/execute@0
+      displayName: Use GitVersion
+    - script: |
+        echo FullSemVer: $(fullSemVer)
     - task: UseDotNet@2
       displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
       inputs:
