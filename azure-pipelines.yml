@@ -151,25 +151,25 @@ stages:
         env
       env:
         SITE_URL: $(WebService) 
-    - task: UseDotNet@2
-      displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
-      inputs:
-        version: '$(dotnetSdkVersion)'
-    - task: DotNetCoreCLI@2
-      displayName: 'Build the project - $(buildConfiguration)'
-      inputs:
-        command: 'build'
-        arguments: '--configuration $(buildConfiguration)'
-        projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj'
-    - task: DotNetCoreCLI@2
-      displayName: 'Run unit tests - $(buildConfiguration)'
-      inputs:
-        command: 'test'
-        arguments: '--no-build --configuration $(buildConfiguration)'
-        publishTestResults: true
-        projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj'
-      env:
-        SITE_URL: $(WebService)
+    # - task: UseDotNet@2
+    #   displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
+    #   inputs:
+    #     version: '$(dotnetSdkVersion)'
+    # - task: DotNetCoreCLI@2
+    #   displayName: 'Build the project - $(buildConfiguration)'
+    #   inputs:
+    #     command: 'build'
+    #     arguments: '--configuration $(buildConfiguration)'
+    #     projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj'
+    # - task: DotNetCoreCLI@2
+    #   displayName: 'Run unit tests - $(buildConfiguration)'
+    #   inputs:
+    #     command: 'test'
+    #     arguments: '--no-build --configuration $(buildConfiguration)'
+    #     publishTestResults: true
+    #     projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj'
+    #   env:
+    #     SITE_URL: $(WebService)
 
 
 - stage: "DeployToProd"
