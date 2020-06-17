@@ -6,5 +6,5 @@ steps:
 - task: gitversion/execute@0
   displayName: Use GitVersion
 - script: |
-    echo SemVer: $(semVer)"
+    echo SemVer: $(semVer)
     echo ##vso[build.updatebuildnumber]$(semVer)
