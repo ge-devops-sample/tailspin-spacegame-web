@@ -190,5 +190,5 @@ stages:
      and
      (
        succeeded(),
-       eq(variables['Build.SourceBranch'], 'master')
+       eq(variables['Build.SourceBranch'], 'refs/heads/master')
      )
