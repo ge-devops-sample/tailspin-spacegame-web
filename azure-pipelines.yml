@@ -12,28 +12,7 @@ variables:
 stages:
 - stage: 'Build'
   displayName: 'Build and publish'
-  jobs:  
-  - template: templates/setVariable.yml
-    parameters:
-      kubernetesConnection: 'Kubernetes Cluster Connection Test'
-      namespace: 'micro-services-test'
-  - job: 'showVariable'
-    dependsOn: setVariable
-    pool:
-      vmImage: 'windows-2019'
-    variables:
-    - name: WebService 
-      value: $[ dependencies.setVariable.outputs['setWebService.WebService'] ]
-    - group: 'Release'
-    steps:
-    - script: |
-        echo "Site URL : $env:SITE_URL"
-        echo "WEBSERVICE : $env:WEBSERVICE"
-        echo "Web service : $(WebService)"
-        env
-      env:
-        SITE_URL: $(WebService) 
-
+  jobs: 
   - job: 'Build'
     displayName: 'Build and Test'
     dependsOn: showVariable
@@ -149,18 +128,26 @@ stages:
       webRepository: $(webRepository)
       tag: $(tag)
       dependsOn: Build
+  - template: templates/setVariable.yml
+    parameters:
+      name: 'setWebApplication'
+      kubernetesConnection: 'Kubernetes Cluster Connection Test'
+      namespace: 'micro-services-test'
+      dependsOn: DeployTest
+      variableName: WebService
   - job: RunUITests
-    dependsOn: DeployTest
+    dependsOn: setWebApplication
     displayName: 'Run UI tests'
     pool:
       vmImage: 'windows-2019'
     variables:
     - name: WebService 
-      value: $[ dependencies.DeployTest.outputs['getWebService.WebService'] ]
+      value: $[ dependencies.setWebApplication.outputs['setWebApplication.WebService'] ]
     - group: 'Release'
     steps:
     - script: |
         echo "Site URL : $env:SITE_URL"
+        echo "WEBSERVICE : $env:WEBSERVICE"
         echo "Web service : $(WebService)"
         env
       env:
