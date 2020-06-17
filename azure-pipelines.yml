@@ -27,8 +27,8 @@ stages:
     - task: gitversion/execute@0
       displayName: Use GitVersion
     - script: |
-        echo FullSemVer: $(fullSemVer)
-        echo ##vso[build.updatebuildnumber]$(fullSemVer)
+        echo SemVer: $(semVer)
+        echo ##vso[build.updatebuildnumber]$(semVer)
     - task: UseDotNet@2
       displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
       inputs:
@@ -120,7 +120,7 @@ stages:
         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
         containerRegistry: 'Container Registry Connection'
         tags: |
-          $(build.BuildNumber)
+          $(semVer)
     - publish: '$(Build.SourcesDirectory)/manifests'
       artifact: manifests
 
@@ -136,7 +136,7 @@ stages:
       kubernetesConnection: 'Kubernetes Cluster Connection Test'
       namespace: 'micro-services-test'
       webRepository: $(webRepository)
-      tag: $(tag)
+      tag: $(semVer)
       dependsOn: Build
   - template: templates/setVariable.yml
     parameters:
@@ -195,7 +195,7 @@ stages:
       kubernetesConnection: 'Kubernetes Cluster Connection Prod'
       namespace: 'micro-services'
       webRepository: $(webRepository)
-      tag: $(tag)
+      tag: $(semVer)
       dependsOn: 'DeployTest'
   condition: |
      and
