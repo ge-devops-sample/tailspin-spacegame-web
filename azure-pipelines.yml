@@ -186,3 +186,9 @@ stages:
       webRepository: $(webRepository)
       tag: $(tag)
       dependsOn: 'DeployTest'
+  condition: |
+     and
+     (
+       succeeded(),
+       eq(variables['Build.SourceBranch'], 'master')
+     )
