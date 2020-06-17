@@ -58,7 +58,6 @@ jobs:
        
         - script: |
             Webservice=$(kubectl get service web -n  ${{ parameters.namespace }} -o json | jq .status.loadBalancer.ingress[0].ip | sed 's/\"//g')
-            echo "##vso[task.setvariable variable=WebService;isOutput=true]${Webservice}"
-            echo "Web Service : $(WebService)"
+            echo "##vso[task.setvariable variable=WebService;isOutput=true]test"
           name: 'getWebService'
           displayName: 'Get web service'
