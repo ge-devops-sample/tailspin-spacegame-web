@@ -1,5 +1,5 @@
 trigger:
-- '*'
+- 'master'
 
 variables:
   buildConfiguration: 'Release'
@@ -12,7 +12,7 @@ variables:
 stages:
 - stage: 'Build'
   displayName: 'Build and publish'
-  jobs:  
+  jobs: 
   - job: 'Build'
     displayName: 'Build and Test'
     pool:
@@ -113,24 +113,82 @@ stages:
     - publish: '$(Build.SourcesDirectory)/manifests'
       artifact: manifests
 
-- template: templates/deploy.yml
-  parameters:
-    stageName: 'DeployTest'
-    environment: test
-    registryConnection: 'Container Registry Connection'
-    kubernetesConnection: 'Kubernetes Cluster Connection Test'
-    namespace: 'tailspinspacegame-test'
-    webRepository: $(webRepository)
-    tag: $(tag)
-    dependsOn: build
+- stage: "DeployToTest"
+  displayName: "Deploy to test"
+  dependsOn: Build
+  jobs:
+  - template: templates/deploy.yml
+    parameters:
+      jobName: 'DeployTest'
+      environment: test
+      registryConnection: 'Container Registry Connection'
+      kubernetesConnection: 'Kubernetes Cluster Connection Test'
+      namespace: 'micro-services-test'
+      webRepository: $(webRepository)
+      tag: $(tag)
+      dependsOn: Build
+  - template: templates/setVariable.yml
+    parameters:
+      name: 'setWebApplication'
+      kubernetesConnection: 'Kubernetes Cluster Connection Test'
+      namespace: 'micro-services-test'
+      dependsOn: DeployTest
+      variableName: WebService
+  - job: RunUITests
+    dependsOn: setWebApplication
+    displayName: 'Run UI tests'
+    pool:
+      vmImage: 'windows-2019'
+    variables:
+    - name: WebService 
+      value: $[ dependencies.setWebApplication.outputs['setWebApplication.WebService'] ]
+    - group: 'Release'
+    steps:
+    - script: |
+        echo "Site URL : $env:SITE_URL"
+        echo "WEBSERVICE : $env:WEBSERVICE"
+        echo "Web service : $(WebService)"
+        env
+      env:
+        SITE_URL: $(WebService) 
+    # - task: UseDotNet@2
+    #   displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
+    #   inputs:
+    #     version: '$(dotnetSdkVersion)'
+    # - task: DotNetCoreCLI@2
+    #   displayName: 'Build the project - $(buildConfiguration)'
+    #   inputs:
+    #     command: 'build'
+    #     arguments: '--configuration $(buildConfiguration)'
+    #     projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj'
+    # - task: DotNetCoreCLI@2
+    #   displayName: 'Run unit tests - $(buildConfiguration)'
+    #   inputs:
+    #     command: 'test'
+    #     arguments: '--no-build --configuration $(buildConfiguration)'
+    #     publishTestResults: true
+    #     projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj'
+    #   env:
+    #     SITE_URL: $(WebService)
 
-- template: templates/deploy.yml
-  parameters:
-    stageName: 'DeployProd'
-    environment: prod
-    registryConnection: 'Container Registry Connection'
-    kubernetesConnection: 'Kubernetes Cluster Connection Prod'
-    namespace: 'tailspinspacegame'
-    webRepository: $(webRepository)
-    tag: $(tag)
-    dependsOn: 'DeployTest'
+
+- stage: "DeployToProd"
+  displayName: "Deploy to prod"
+  dependsOn: DeployToTest
+  jobs:
+  - template: templates/deploy.yml
+    parameters:
+      jobName: 'DeployProd'
+      environment: prod
+      registryConnection: 'Container Registry Connection'
+      kubernetesConnection: 'Kubernetes Cluster Connection Prod'
+      namespace: 'micro-services'
+      webRepository: $(webRepository)
+      tag: $(tag)
+      dependsOn: 'DeployTest'
+  condition: |
+     and
+     (
+       succeeded(),
+       eq(variables['Build.SourceBranch'], 'master')
+     )

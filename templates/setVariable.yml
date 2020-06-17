@@ -1,0 +1,24 @@
+parameters:
+  name: false
+  kubernetesConnection: false
+  namespace: false
+  dependsOn: false
+  variableName: false
+
+jobs:  
+- job: ${{ parameters.name }}
+  dependsOn: ${{ parameters.dependsOn }}
+  pool:
+    vmImage: 'ubuntu-16.04'
+  steps:
+  - task: Kubernetes@1
+    displayName: Kubernetes login
+    inputs:
+      connectionType: Kubernetes Service Connection
+      kubernetesServiceEndpoint: ${{ parameters.kubernetesConnection }}
+      namespace: ${{ parameters.namespace }}
+      command: login
+  - script: |
+      Webservice=$(kubectl get service web -n  ${{ parameters.namespace }} -o json | jq .status.loadBalancer.ingress[0].ip | sed 's/\"//g')
+      echo "##vso[task.setvariable variable=${{ parameters.variableName }};isOutput=true]$Webservice"
+    name: ${{ parameters.name }}
