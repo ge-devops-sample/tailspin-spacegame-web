@@ -20,7 +20,7 @@ stages:
     pool:
       vmImage: 'ubuntu-16.04'
     steps:
-    - template: template/gitVersion.yml
+    - template: templates/gitVersion.yml
     - task: UseDotNet@2
       displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
       inputs:
