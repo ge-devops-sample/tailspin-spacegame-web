@@ -50,4 +50,4 @@ jobs:
             imagePullSecrets: |
               $(imagePullSecret)
             containers: |
-              $(RegistryName)/${{ parameters.webRepository }}::$(semVer)
+              $(RegistryName)/${{ parameters.webRepository }}:$(semVer)
