@@ -128,7 +128,6 @@ stages:
       kubernetesConnection: 'Kubernetes Cluster Connection Test'
       namespace: 'micro-services-test'
       webRepository: $(webRepository)
-      tag: $(semVer)
       dependsOn: Build
   - template: templates/setVariable.yml
     parameters:
@@ -187,7 +186,6 @@ stages:
       kubernetesConnection: 'Kubernetes Cluster Connection Prod'
       namespace: 'micro-services'
       webRepository: $(webRepository)
-      tag: $(semVer)
       dependsOn: 'DeployTest'
   condition: |
      and

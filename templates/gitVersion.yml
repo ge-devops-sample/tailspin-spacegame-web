@@ -8,3 +8,7 @@ steps:
 - script: |
     echo SemVer: $(semVer)
     echo ##vso[build.updatebuildnumber]$(semVer)
+    mkdir -p $(Pipeline.Workspace)/variables
+    echo $(semVer) > $(Pipeline.Workspace)/variables/semVer
+- publish: $(Pipeline.Workspace)/variables
+  artifact: variables

@@ -5,7 +5,6 @@ parameters:
   kubernetesConnection: false
   namespace: false
   webRepository: false
-  tag: false
 
 jobs:
 - deployment: "${{ parameters.jobName }}"
@@ -19,9 +18,13 @@ jobs:
     runOnce:
       deploy:
         steps:
-        - template: "gitVersion.yml"
+        - download: current
+          artifact: variables
         - script: |
-            echo $(RegistryName)/${{ parameters.webRepository }}:${{ parameters.tag }}
+            semVer=$(cat $(Pipeline.Workspace)/variables/semVer)
+            echo "##vso[task.setvariable variable=semVer]$semVer"
+        - script: |
+            echo $(RegistryName)/${{ parameters.webRepository }}:$(semVer)
 
         - download: current
           artifact: manifests
@@ -47,4 +50,4 @@ jobs:
             imagePullSecrets: |
               $(imagePullSecret)
             containers: |
-              $(RegistryName)/${{ parameters.webRepository }}:${{ parameters.tag }}
+              $(RegistryName)/${{ parameters.webRepository }}::$(semVer)
