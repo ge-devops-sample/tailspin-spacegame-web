@@ -19,6 +19,7 @@ jobs:
     runOnce:
       deploy:
         steps:
+        - template: "gitVersion.yml"
         - script: |
             echo $(RegistryName)/${{ parameters.webRepository }}:${{ parameters.tag }}
 
