@@ -1,5 +1,7 @@
 trigger:
 - 'master'
+- 'develop'
+- 'release/*'
 
 variables:
   buildConfiguration: 'Release'
