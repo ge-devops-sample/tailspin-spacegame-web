@@ -147,7 +147,7 @@ stages:
 - stage: "DeployToTest"
   displayName: "Deploy to test"
   dependsOn: DeployToDev
-   condition: |
+  condition: |
     and
     (
       succeeded(),
