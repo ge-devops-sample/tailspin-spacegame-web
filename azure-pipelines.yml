@@ -116,9 +116,51 @@ stages:
     - publish: '$(Build.SourcesDirectory)/manifests'
       artifact: manifests
 
-- stage: "DeployToTest"
+- stage: "DeployToDev"
   displayName: "Deploy to test"
   dependsOn: Build
+  jobs:
+  - template: templates/deploy.yml
+    parameters:
+      jobName: 'DeployDev'
+      environment: develop
+      registryConnection: 'Container Registry Connection'
+      kubernetesConnection: 'Kubernetes Cluster Connection Develop'
+      namespace: 'micro-services-develop'
+      webRepository: $(webRepository)
+  
+  # condition: |
+  #   and
+  #   (
+  #     succeeded(),
+  #     or
+  #     (
+  #       and
+  #       (
+  #         eq(variables['Build.Reason'], 'PullRequest'),
+  #         eq(variables['System.PullRequest.TargetBranch'], 'develop')
+  #       ),
+  #       in(variables['Build.SourceBranchName'], 'refs/heads/master', 'refs/heads/release/*', 'refs/heads/develop' )
+  #     )
+  #   )
+     
+- stage: "DeployToTest"
+  displayName: "Deploy to test"
+  dependsOn: DeployToDev
+   condition: |
+    and
+    (
+      succeeded(),
+      or
+      (
+        and
+        (
+          eq(variables['Build.Reason'], 'PullRequest'),
+          eq(variables['System.PullRequest.TargetBranch'], 'master')
+        ),
+        in(variables['Build.SourceBranchName'], 'refs/heads/release/*', 'refs/heads/master' )
+      )
+    )
   jobs:
   - template: templates/deploy.yml
     parameters:
@@ -128,7 +170,6 @@ stages:
       kubernetesConnection: 'Kubernetes Cluster Connection Test'
       namespace: 'micro-services-test'
       webRepository: $(webRepository)
-      dependsOn: Build
   - template: templates/setVariable.yml
     parameters:
       name: 'setWebApplication'
@@ -186,7 +227,6 @@ stages:
       kubernetesConnection: 'Kubernetes Cluster Connection Prod'
       namespace: 'micro-services'
       webRepository: $(webRepository)
-      dependsOn: 'DeployTest'
   condition: |
      and
      (
