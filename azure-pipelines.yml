@@ -20,7 +20,7 @@ stages:
     pool:
       vmImage: 'ubuntu-16.04'
     steps:
-    - script: echo $(Build.SourceBranchName)
+    - script: echo $(Build.SourceBranch)
     - template: templates/gitVersion.yml
     - task: UseDotNet@2
       displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
@@ -161,8 +161,8 @@ stages:
         ),
         or
         (
-          in(variables['Build.SourceBranchName'], 'refs/heads/release/*', 'refs/heads/master' ),
-          startsWith(variables['Build.SourceBranchName'], 'refs/heads/release/')
+          eq(variables['Build.SourceBranch'], 'refs/heads/master' ),
+          startsWith(variables['Build.SourceBranch'], 'refs/heads/release/')
         )
       )
     )
