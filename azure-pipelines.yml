@@ -233,10 +233,7 @@ stages:
           eq(variables['Build.Reason'], 'PullRequest'),
           eq(variables['System.PullRequest.TargetBranch'], 'master')
         ),
-        or
-        (
-          eq(variables['Build.SourceBranch'], 'refs/heads/master' ),
-        )
+        eq(variables['Build.SourceBranch'], 'refs/heads/master' )
       )
     )
   jobs:
