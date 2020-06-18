@@ -158,7 +158,11 @@ stages:
           eq(variables['Build.Reason'], 'PullRequest'),
           eq(variables['System.PullRequest.TargetBranch'], 'master')
         ),
-        in(variables['Build.SourceBranchName'], 'refs/heads/release/*', 'refs/heads/master' )
+        or
+        (
+          in(variables['Build.SourceBranchName'], 'refs/heads/release/*', 'refs/heads/master' ),
+          startsWith(variables['Build.SourceBranchName'], 'refs/heads/release/')
+        )
       )
     )
   jobs:
