@@ -100,8 +100,8 @@ stages:
       #     eq(variables['System.PullRequest.TargetBranch'], 'master')
       #   )
     
-    - task: WhiteSource Bolt@20
-      displayName: 'Run WhiteSource Bolt'
+    #- task: WhiteSource Bolt@20
+    #  displayName: 'Run WhiteSource Bolt'
 
     - task: Docker@2
       displayName: 'Build and push the leaderboard image to container registry'
