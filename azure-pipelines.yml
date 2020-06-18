@@ -117,7 +117,7 @@ stages:
       artifact: manifests
 
 - stage: "DeployToDev"
-  displayName: "Deploy to test"
+  displayName: "Deploy to dev"
   dependsOn: Build
   jobs:
   - template: templates/deploy.yml
