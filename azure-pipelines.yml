@@ -219,6 +219,35 @@ stages:
     #   env:
     #     SITE_URL: $(WebService)
 
+- stage: "DeployToStaging"
+  displayName: "Deploy to staging"
+  dependsOn: Build
+  condition: |
+    and
+    (
+      succeeded(),
+      or
+      (
+        and
+        (
+          eq(variables['Build.Reason'], 'PullRequest'),
+          eq(variables['System.PullRequest.TargetBranch'], 'master')
+        ),
+        or
+        (
+          eq(variables['Build.SourceBranch'], 'refs/heads/master' ),
+        )
+      )
+    )
+  jobs:
+  - template: templates/deploy.yml
+    parameters:
+      jobName: 'DeployStaging'
+      environment: staging
+      registryConnection: 'Container Registry Connection'
+      kubernetesConnection: 'Kubernetes Cluster Connection Staging'
+      namespace: 'micro-services-staging'
+      webRepository: $(webRepository)
 
 - stage: "DeployToProd"
   displayName: "Deploy to prod"
