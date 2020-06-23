@@ -221,7 +221,7 @@ stages:
 
 - stage: "DeployToStaging"
   displayName: "Deploy to staging"
-  dependsOn: Build
+  dependsOn: DeployToTest
   condition: |
     and
     (
@@ -248,7 +248,7 @@ stages:
 
 - stage: "DeployToProd"
   displayName: "Deploy to prod"
-  dependsOn: DeployToTest
+  dependsOn: DeployToStaging
   jobs:
   - template: templates/deploy.yml
     parameters:
