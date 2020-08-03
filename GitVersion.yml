@@ -1,0 +1,8 @@
+branches:
+  release:
+    mode: ContinuousDeployment
+  develop:
+    mode: ContinuousDelivery
+ignore:
+  sha: []
+merge-message-formats: {}
