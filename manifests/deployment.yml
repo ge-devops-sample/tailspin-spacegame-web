@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: acrf2fb.azurecr.io/web
+          image: gedevopsacrdemo.azurecr.io/web
           ports:
           - containerPort: 80
 # ---
